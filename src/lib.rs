@@ -169,49 +169,49 @@ impl<A, B, C, D, E, F, G> Sp<A, B, C, D, E, F, G> {
 impl<A, B, C, D, E, F, G, H> Sp<A, B, C, D, E, F, G, H> {
     /// Get a `Pin<&mut A>`
     pub fn a(self: Pin<&mut Self>) -> Pin<&mut A> {
-        // unsafe: This is okay because `field` is pinned when `self` is.
+        // unsafe: This is okay because `a` is pinned when `self` is.
         unsafe { self.map_unchecked_mut(|this| &mut this.a) }
     }
 
     /// Get a `Pin<&mut B>`
     pub fn b(self: Pin<&mut Self>) -> Pin<&mut B> {
-        // unsafe: This is okay because `field` is pinned when `self` is.
+        // unsafe: This is okay because `b` is pinned when `self` is.
         unsafe { self.map_unchecked_mut(|this| &mut this.b) }
     }
 
     /// Get a `Pin<&mut C>`
     pub fn c(self: Pin<&mut Self>) -> Pin<&mut C> {
-        // unsafe: This is okay because `field` is pinned when `self` is.
+        // unsafe: This is okay because `c` is pinned when `self` is.
         unsafe { self.map_unchecked_mut(|this| &mut this.c) }
     }
 
     /// Get a `Pin<&mut D>`
     pub fn d(self: Pin<&mut Self>) -> Pin<&mut D> {
-        // unsafe: This is okay because `field` is pinned when `self` is.
+        // unsafe: This is okay because `d` is pinned when `self` is.
         unsafe { self.map_unchecked_mut(|this| &mut this.d) }
     }
 
     /// Get a `Pin<&mut E>`
     pub fn e(self: Pin<&mut Self>) -> Pin<&mut E> {
-        // unsafe: This is okay because `field` is pinned when `self` is.
+        // unsafe: This is okay because `e` is pinned when `self` is.
         unsafe { self.map_unchecked_mut(|this| &mut this.e) }
     }
 
     /// Get a `Pin<&mut F>`
     pub fn f(self: Pin<&mut Self>) -> Pin<&mut F> {
-        // unsafe: This is okay because `field` is pinned when `self` is.
+        // unsafe: This is okay because `f` is pinned when `self` is.
         unsafe { self.map_unchecked_mut(|this| &mut this.f) }
     }
 
     /// Get a `Pin<&mut G>`
     pub fn g(self: Pin<&mut Self>) -> Pin<&mut G> {
-        // unsafe: This is okay because `field` is pinned when `self` is.
+        // unsafe: This is okay because `g` is pinned when `self` is.
         unsafe { self.map_unchecked_mut(|this| &mut this.g) }
     }
 
     /// Get a `Pin<&mut H>`
     pub fn h(self: Pin<&mut Self>) -> Pin<&mut H> {
-        // unsafe: This is okay because `field` is pinned when `self` is.
+        // unsafe: This is okay because `h` is pinned when `self` is.
         unsafe { self.map_unchecked_mut(|this| &mut this.h) }
     }
 }
