@@ -22,6 +22,8 @@
 #![doc = include_str!("../examples/simple.rs")]
 //! ```
 
+#![no_std]
+
 use core::pin::Pin;
 
 /// Sp stands for Structurally Pinned
