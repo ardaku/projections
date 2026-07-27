@@ -24,6 +24,8 @@
 
 #![no_std]
 
+pub mod sp;
+
 use core::pin::Pin;
 
 /// Sp stands for Structurally Pinned
