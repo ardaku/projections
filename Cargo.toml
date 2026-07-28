@@ -26,11 +26,8 @@ categories = [
 rust-version = "1.91"
 readme = "README.md"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dev-dependencies.as_repr]
-version = "1.10.0"
-path = "../../AldaronLau/as_repr"
+version = "1.11.0"
 
 [dev-dependencies.pasts]
 version = "0.14.3"
