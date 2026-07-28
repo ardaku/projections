@@ -19,7 +19,7 @@ keywords = ["pin", "lite", "projection", "safe", "structural"]
 categories = [
     "asynchronous",
     "no-std",
-    "no-std::no_alloc",
+    "no-std::no-alloc",
     "rust-patterns",
     "data-structures",
 ]
