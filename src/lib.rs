@@ -4,10 +4,23 @@
 //! [pin-project-lite](https://docs.rs/pin-project-lite/latest/pin_project_lite/)
 //! but more lite.
 //!
-//! # Why
+//! # Why Another Pin Projection Crate?
 //!
 //! Because you want to create structural pin projections without macros or
-//! unsafe for some reason (perhaps for fun?).
+//! unsafe for some reason (perhaps for fun?).  If you need functionality not
+//! supported by this crate, it's worth considering using `pin-project-lite` or
+//! `pin-project` instead.
+//!
+//! # Differences To `pin-project-lite`
+//!
+//! `pin-project-lite` only supports structs with named fields; `projections`
+//! only supports wrapped tuple structs (up to an arity of 7).
+//!
+//! `pin-project-lite` only projects fields annotated with `#[pin]`;
+//! `projections` always projects all fields.
+//!
+//! `pin-project-lite` might not have the best error messages; `projections`
+//! error messages should be relatively good.
 //!
 //! # Getting Started
 //!
@@ -28,19 +41,19 @@
 //! let _inner: Pin<&mut (u32, String)> = Sp::get_mut(sp.as_mut());
 //!
 //! // Immutable projection of tuple elements
-//! let (int, string): (Pin<&u32>, Pin<&String>) = sp.as_ref().project();
+//! let (int, string): (Pin<&u32>, Pin<&String>) = Sp::project(sp.as_ref());
 //!
 //! assert_eq!(*int.get_ref(), 12);
 //! assert_eq!(*string.get_ref(), "Hi");
 //!
 //! // Mutable projection of tuple elements
-//! let (int, string): (Pin<&mut u32>, Pin<&mut String>) = sp.project_mut();
+//! let (int, string): (Pin<&mut u32>, Pin<&mut String>) = Sp::project_mut(sp);
 //!
 //! assert_eq!(*int.get_mut(), 12);
 //! assert_eq!(string.get_mut(), "Hi");
 //! ```
 //!
-//! ## Alloc
+//! ## Orphan Rule: Alloc
 //!
 //! Due to the orphan rule, either alloc, unsafe, or macros are required to
 //! implement [`Future`] or other traits usually requiring pinned references
@@ -63,7 +76,7 @@
 //!         mut self: Pin<&mut Self>,
 //!         cx: &mut Context<'_>,
 //!     ) -> Poll<F::Output> {
-//!         self.0.as_mut().project_mut().0.poll(cx)
+//!         Sp::project_mut(self.0.as_mut()).0.poll(cx)
 //!     }
 //! }
 //!
@@ -74,7 +87,7 @@
 //! # });
 //! ```
 //!
-//! # Unsafe
+//! ## Orphan Rule: Unsafe
 //!
 //! Using `unsafe` to get around the orphan rule (with the [`as_repr`] crate):
 //!
@@ -91,7 +104,9 @@
 //! pub struct MyFuture<F>(Sp<(F, PrivateMarker)>);
 //!
 //! // SAFETY: `MyFuture` is `repr(transparent)`
-//! unsafe impl<F> AsRepr<Pin<&mut Sp<(F, PrivateMarker)>>> for Pin<&mut MyFuture<F>> {}
+//! unsafe impl<F> AsRepr<Pin<&mut Sp<(F, PrivateMarker)>>>
+//!     for Pin<&mut MyFuture<F>>
+//! {}
 //!
 //! impl<F> Future for MyFuture<F>
 //! where
@@ -106,7 +121,7 @@
 //!         let mut sp: Pin<&mut Sp<(F, PrivateMarker)>>
 //!             = as_repr::as_repr(self);
 //!
-//!         sp.as_mut().project_mut().0.poll(cx)
+//!         Sp::project_mut(sp.as_mut()).0.poll(cx)
 //!     }
 //! }
 //!
@@ -117,7 +132,7 @@
 //! # });
 //! ```
 //!
-//! # Macros
+//! ## Orphan Rule: Macros
 //!
 //! Using macros to get around the orphan rule (with the [`as_repr`] crate):
 //!
@@ -147,7 +162,7 @@
 //!         let mut sp: Pin<&mut Sp<(F, PrivateMarker)>>
 //!             = as_repr::as_repr(self);
 //!
-//!         sp.as_mut().project_mut().0.poll(cx)
+//!         Sp::project_mut(sp.as_mut()).0.poll(cx)
 //!     }
 //! }
 //!
@@ -199,16 +214,21 @@ macro_rules! sp_mut {
 }
 
 /// `Sp` stands for "Structurally Pinned"
+///
+/// Functionality is exclusively exposed as associated functions to prevent name
+/// collisions with [`Pin`] methods.
 #[repr(transparent)]
 pub struct Sp<T>(T);
 
 impl<T> Sp<T> {
     /// Create a new structurally-pinned wrapper.
+    #[inline]
     pub const fn new(inner: T) -> Self {
         Self(inner)
     }
 
     /// Get a pin-projected reference to the inner value.
+    #[inline]
     pub const fn get(this: Pin<&Self>) -> Pin<&T> {
         // SAFETY: Value is never moved out of the reference (pointer
         // exclusively used for projection).
@@ -220,6 +240,7 @@ impl<T> Sp<T> {
     }
 
     /// Get a pin-projected mutable reference to the inner value.
+    #[inline]
     pub const fn get_mut(this: Pin<&mut Self>) -> Pin<&mut T> {
         // SAFETY: Value is never moved out of the reference (pointer
         // exclusively used for projection).
@@ -231,12 +252,13 @@ impl<T> Sp<T> {
     }
 
     /// Project all elements (supports tuples with up to 7 elements).
-    pub const fn project(self: Pin<&Self>) -> T::Projected<'_>
+    #[inline]
+    pub const fn project(this: Pin<&Self>) -> T::Projected<'_>
     where
         T: Project,
         Type<T>: Generics,
     {
-        let ptr: *const T = Sp::get(self).get_ref();
+        let ptr: *const T = Sp::get(this).get_ref();
 
         match T::TYPE {
             Type::Unit(_) => sp!(this, ptr, (), ()),
@@ -360,12 +382,13 @@ impl<T> Sp<T> {
     }
 
     /// Project all elements mutably (supports tuples with up to 7 elements).
-    pub const fn project_mut(self: Pin<&mut Self>) -> T::ProjectedMut<'_>
+    #[inline]
+    pub const fn project_mut(this: Pin<&mut Self>) -> T::ProjectedMut<'_>
     where
         T: Project,
         Type<T>: Generics,
     {
-        let ptr: *mut T = unsafe { Self::get_mut(self).get_unchecked_mut() };
+        let ptr: *mut T = unsafe { Self::get_mut(this).get_unchecked_mut() };
 
         match T::TYPE {
             Type::Unit(_) => unsafe { mem::transmute_copy(&()) },
