@@ -204,8 +204,8 @@
     rustdoc::redundant_explicit_links
 )]
 #![doc(
-    html_logo_url = "https://raw.githubusercontent.com/ardaku/whoami/v2/res/icon.svg",
-    html_favicon_url = "https://raw.githubusercontent.com/ardaku/whoami/v2/res/icon.svg"
+    html_logo_url = "https://ardaku.github.io/mm/logo.svg",
+    html_favicon_url = "https://ardaku.github.io/mm/icon.svg",
 )]
 
 mod generics;
