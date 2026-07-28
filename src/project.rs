@@ -12,13 +12,16 @@ use crate::generics::Type;
 /// ensuring invariants for safety.  This trait is also sealed, so consumers of
 /// this library cannot implement it.
 pub unsafe trait Project: Sized {
+    /// The output of [`Sp::project()`](crate::Sp::project)
     type Projected<'a>
     where
         Self: 'a;
+    /// The output of [`Sp::project_mut()`](crate::Sp::project_mut)
     type ProjectedMut<'a>
     where
         Self: 'a;
 
+    /// The type being projected
     const TYPE: Type<Self>;
 }
 

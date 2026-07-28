@@ -44,6 +44,7 @@ macro_rules! sp_mut {
 ///
 /// Functionality is exclusively exposed as associated functions to prevent name
 /// collisions with [`Pin`] methods.
+#[derive(Debug)]
 #[repr(transparent)]
 pub struct Sp<T>(T);
 
