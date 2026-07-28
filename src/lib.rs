@@ -205,7 +205,7 @@
 )]
 #![doc(
     html_logo_url = "https://ardaku.github.io/mm/logo.svg",
-    html_favicon_url = "https://ardaku.github.io/mm/icon.svg",
+    html_favicon_url = "https://ardaku.github.io/mm/icon.svg"
 )]
 
 mod generics;
