@@ -189,7 +189,7 @@
     unreachable_pub,
     unused_extern_crates,
     unused_qualifications,
-    variant_size_differences,
+    variant_size_differences
 )]
 #![deny(
     rustdoc::broken_intra_doc_links,
