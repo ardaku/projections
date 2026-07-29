@@ -1,5 +1,5 @@
 use core::{
-    mem::{self, MaybeUninit},
+    mem::{self, ManuallyDrop, MaybeUninit},
     pin::Pin,
 };
 
@@ -42,7 +42,7 @@ macro_rules! sp_mut {
 
 /// `Sp` stands for "Structurally Pinned"
 ///
-/// Functionality is exclusively exposed as associated functions to prevent name
+/// Projections are exclusively exposed as associated functions to prevent name
 /// collisions with [`Pin`] methods.
 #[derive(Debug)]
 #[repr(transparent)]
@@ -50,7 +50,7 @@ pub struct Sp<T>(T);
 
 impl<T> Sp<T> {
     /// Create a new structurally-pinned wrapper.
-    #[inline]
+    #[inline(always)]
     pub const fn new(inner: T) -> Self {
         Self(inner)
     }
@@ -347,5 +347,47 @@ impl<T> Sp<T> {
                 )
             }
         }
+    }
+
+    /// Unwrap the inner value, consuming the `Sp`.
+    ///
+    /// ```rust
+    /// # use projections::Sp;
+    /// let inner = Sp::new((4, 8, 15, 16, 23, 42)).into_inner();
+    ///
+    /// assert_eq!((4, 8, 15, 16, 23, 42), inner);
+    /// ```
+    #[inline(always)]
+    pub const fn into_inner(self) -> T {
+        let this = ManuallyDrop::new(self);
+
+        // SAFETY: `Sp` has the same representation as `T`
+        unsafe { mem::transmute_copy(&this) }
+    }
+
+    /// Get a shared reference to the inner value.
+    ///
+    /// ```rust
+    /// # use projections::Sp;
+    /// let sp = Sp::new((4, 8, 15, 16, 23, 42));
+    ///
+    /// assert_eq!(&(4, 8, 15, 16, 23, 42), sp.as_ref());
+    /// ```
+    #[inline(always)]
+    pub const fn as_ref(&self) -> &T {
+        &self.0
+    }
+
+    /// Get a unique reference to the inner value.
+    ///
+    /// ```rust
+    /// # use projections::Sp;
+    /// let mut sp = Sp::new((4, 8, 15, 16, 23, 42));
+    ///
+    /// assert_eq!(&mut (4, 8, 15, 16, 23, 42), sp.as_mut());
+    /// ```
+    #[inline(always)]
+    pub const fn as_mut(&mut self) -> &mut T {
+        &mut self.0
     }
 }
