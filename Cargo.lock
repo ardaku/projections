@@ -25,7 +25,7 @@ checksum = "efcd36303871fb977a47dabc9af736c75c492bb32a92fa26262b2741531e97ce"
 
 [[package]]
 name = "projections"
-version = "1.1.0"
+version = "1.1.1"
 dependencies = [
  "as_repr",
  "pasts",
